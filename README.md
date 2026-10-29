@@ -4,7 +4,7 @@
 
 Python·Java·C++·C로 기초부터 심화까지 학습할 수 있습니다. 단계별 설명과 실행 예제를 읽고, 연결된 문제를 풀며, 막히는 부분은 3단계 힌트와 풀이 해설로 확인합니다. 프로그램과 채점기는 내 PC에서 실행되고 학습 기록도 내 PC에 저장됩니다.
 
-[시작하기](#시작하기) · [학습 방법](#학습-방법) · [기록과 업데이트](#기록과-업데이트) · [최신 배포](https://github.com/dang0321/coderoute-launcher/releases/latest) · [문제 제보](https://github.com/dang0321/coderoute-launcher/issues)
+[공식 안내](https://coderoute-info.pages.dev) · [시작하기](#시작하기) · [학습 방법](#학습-방법) · [기록과 업데이트](#기록과-업데이트) · [최신 배포](https://github.com/dang0321/coderoute-launcher/releases/latest) · [문제 제보](https://github.com/dang0321/coderoute-launcher/issues)
 
 ## 코드루트 소개
 
@@ -142,3 +142,5 @@ py -3.13 launcher.py status
 실행 패키지는 백엔드 바이트코드 `.pyc`, 웹 화면·학습 자료와 Docker 채점용 도우미를 포함합니다. 바이트코드는 분석·복원될 수 있습니다. 개발 원본의 Git 이력, 개인 DB·풀이·토큰·SMTP 설정은 배포하지 않습니다.
 
 **코드루트 자체의 라이선스·수정·재배포 조건은 결정 보류 상태입니다.** 공개 저장소를 오픈소스 라이선스가 부여된 저장소로 안내하지 않습니다. 포함된 외부 구성 요소의 고지는 실행 패키지의 `THIRD_PARTY.md`와 관련 고지 파일에서 확인할 수 있습니다.
+
+[개인정보 안내](https://coderoute-info.pages.dev/privacy.html) · [이용 안내](https://coderoute-info.pages.dev/terms.html)
