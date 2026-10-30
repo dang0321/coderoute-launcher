@@ -22,6 +22,8 @@ SHA=re.compile('[a-f0-9]{64}')
 SUPPORTED_PYTHONS=((3,11),(3,12),(3,13))
 ASSET=f'CodeRoute-win-py{sys.version_info[0]}{sys.version_info[1]}.zip'
 LIMIT=64*1024*1024
+CORE=['requirements.txt','catalog/package_update.pyc','catalog/management/commands/package_state.pyc',
+      'catalog/database_backups.pyc','catalog/database_snapshot.pyc','catalog/local_update.pyc']
 
 
 def check_python():
@@ -167,6 +169,15 @@ def install(state,archive,digest,tag):
     home=state/'home';home.mkdir(exist_ok=True);python=home/'.venv/Scripts/python.exe'
     if old and (old/'requirements.txt').read_bytes()!=(directory/'requirements.txt').read_bytes():
         raise ValueError('필요 패키지가 변경된 배포는 별도 업그레이드 안내가 필요합니다.')
+    if old:
+        before=json.loads((old/'package.json').read_text(encoding='utf-8'))
+        after=json.loads((directory/'package.json').read_text(encoding='utf-8'))
+        if before.get('format')!=1 or before.get('python_magic')!=importlib.util.MAGIC_NUMBER.hex() or not isinstance(before.get('files'),dict):
+            raise ValueError('기존 패키지 목록을 확인해 주세요. 기록은 유지했습니다.')
+        protected=set(CORE)|{name for name in before['files'] if name.startswith('judge/')}
+        if any(not safe_name(name) or (old/name).resolve()!=old/name or before['files'].get(name)!=after['files'].get(name) or
+               hashlib.sha256((old/name).read_bytes()).hexdigest()!=before['files'].get(name) for name in protected):
+            raise ValueError('실행기 핵심·의존성·채점 이미지 변경은 별도 업그레이드가 필요합니다.')
     if not python.exists():
         subprocess.run([sys.executable,'-m','venv',str(home/'.venv')],check=True,timeout=120)
     environment=subprocess.run([str(python),'-c','import importlib.util; print(importlib.util.MAGIC_NUMBER.hex())'],
@@ -175,7 +186,8 @@ def install(state,archive,digest,tag):
         raise ValueError('기존 가상환경의 Python 버전이 다릅니다. 원래 설치에 사용한 Python으로 실행해 주세요. 기록 폴더는 유지합니다.')
     if not old:
         subprocess.run([str(python),'-m','pip','install','--disable-pip-version-check','-r',str(directory/'requirements.txt')],check=True,timeout=300)
-    manage(state,old or directory,'package_state','activate','--candidate='+str(directory))
+    # Verified identical update core runs beside the candidate runtime, including its port/ownership fixes.
+    manage(state,directory,'package_state','activate','--candidate='+str(directory))
     return current(state)
 
 
