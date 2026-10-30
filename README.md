@@ -49,9 +49,32 @@ PowerShell 또는 명령 프롬프트에서 아래 명령으로 Python 준비 �
 python --version
 ```
 
-일반 Python인 **CPython 3.11·3.12·3.13 64비트**를 지원합니다. Windows Python Launcher(`py`)가 있으면 지원 버전을 자동으로 찾고, 없으면 PATH의 `python`을 확인합니다. 새 설치에서는 3.13 → 3.12 → 3.11 순서로 선택하며, 기존 설치는 코드루트 전용 가상환경의 Python을 우선 사용합니다.
+#### Python 호환성과 PyPy
 
-**PyPy만 있는 환경은 현재 실행용으로 지원하지 않습니다.** PyPy는 CPython과 별도 구현체이며 CPython용 바이트코드 배포본을 그대로 실행할 수 없습니다. Java·C++·C의 실행 도구는 채점 이미지 안에서 준비하므로 PC에 각각 설치할 필요가 없습니다. 이용자 PC의 Python 버전과 제출 코드를 실행하는 Docker 채점 환경은 별개입니다.
+코드루트를 실행하는 데 필요한 Python과, 평소 IDE에서 실습할 때 선택하는 Python은 구분됩니다. 현재 Windows 배포본의 지원 범위는 다음과 같습니다.
+
+| PC에 준비된 환경 | 코드루트 실행 | 설명 |
+|---|---|---|
+| CPython 3.11 64비트 | 가능 | 3.11용 실행 패키지를 자동 선택합니다. |
+| CPython 3.12 64비트 | 가능 | 3.12용 실행 패키지를 자동 선택합니다. |
+| CPython 3.13 64비트 | 가능 | 3.13용 실행 패키지를 자동 선택합니다. |
+| PyPy만 설치됨 | 불가 | 현재 배포본은 CPython용 바이트코드이므로 PyPy로 실행할 수 없습니다. |
+| PyPy와 위 지원 CPython이 함께 설치됨 | 가능 | 실행기가 지원 CPython을 찾을 수 있어야 합니다. PyPy로 실습하는 환경은 유지해도 됩니다. |
+| 그 밖의 Python 버전 또는 32비트 Python만 설치됨 | 지원하지 않음 | 지원되는 CPython 3.11·3.12·3.13 64비트가 필요합니다. |
+
+**Python 3.11이나 3.12가 이미 있다면 3.13을 추가로 설치할 필요가 없습니다.** 예를 들어 VS Code나 PyCharm에서 PyPy로 알고리즘을 실습하더라도, 같은 PC의 지원 CPython을 실행기가 찾을 수 있으면 코드루트를 이용할 수 있습니다. **PyPy를 삭제하거나 IDE의 실습 인터프리터 설정을 바꿀 필요는 없습니다.**
+
+Windows Python Launcher(`py`)가 있으면 3.13 → 3.12 → 3.11 순서로 찾고, 없으면 PATH의 `python`을 검사합니다. 기존 설치는 코드루트 전용 가상환경의 Python을 우선 사용합니다. 단순히 CPython이 설치되어 있어도 `py`나 PATH에서 찾을 수 없는 상태라면 실행 환경을 먼저 확인해야 합니다.
+
+PATH의 `python`이 어떤 구현체·버전·비트인지 확인하려면 다음 명령을 사용합니다.
+
+```powershell
+python -c "import sys, struct; print(sys.implementation.name, sys.version.split()[0], str(struct.calcsize('P') * 8) + '-bit')"
+```
+
+예를 들어 `cpython 3.11.9 64-bit`라면 지원 범위입니다. `pypy`가 나오면 그 명령이 가리키는 Python은 PyPy입니다. `py`가 설치된 PC에서는 `py -0p`로 다른 등록된 Python도 확인할 수 있습니다.
+
+이 조건은 **코드루트 프로그램을 실행하는 환경**에 대한 안내입니다. 이용자 PC의 Python 버전과 제출 코드를 실행하는 Docker 채점 환경은 별개이며, 현재 Python 제출은 Docker의 CPython 3.13에서 채점합니다. Java·C++·C 실행 도구도 채점 이미지에서 준비하므로 PC에 각각 설치할 필요가 없습니다.
 
 Python·Docker 설치와 PC에 필요한 WSL·가상화 설정, 관리자 확인, 재부팅은 직접 진행해야 합니다. 실행기는 그 이후 코드루트의 가상환경·Python 패키지·학습 DB·채점 이미지를 준비합니다. 외부 프로그램의 이용 조건은 각 공식 안내를 확인해 주세요.
 
