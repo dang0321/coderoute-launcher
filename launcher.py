@@ -19,8 +19,15 @@ from zipfile import ZipFile
 
 TAG=re.compile(r'v(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})\.(0|[1-9][0-9]{0,8})')
 SHA=re.compile('[a-f0-9]{64}')
-ASSET='CodeRoute-win-py313.zip'
+SUPPORTED_PYTHONS=((3,11),(3,12),(3,13))
+ASSET=f'CodeRoute-win-py{sys.version_info[0]}{sys.version_info[1]}.zip'
 LIMIT=64*1024*1024
+
+
+def check_python():
+    if (sys.platform!='win32' or sys.implementation.name!='cpython' or
+            sys.version_info[:2] not in SUPPORTED_PYTHONS or struct.calcsize('P')!=8):
+        raise ValueError('Windows CPython 3.11·3.12·3.13 64비트가 필요합니다. PyPy는 실행용으로 지원하지 않습니다.')
 
 
 def write(path,value):
@@ -162,6 +169,10 @@ def install(state,archive,digest,tag):
         raise ValueError('필요 패키지가 변경된 배포는 별도 업그레이드 안내가 필요합니다.')
     if not python.exists():
         subprocess.run([sys.executable,'-m','venv',str(home/'.venv')],check=True,timeout=120)
+    environment=subprocess.run([str(python),'-c','import importlib.util; print(importlib.util.MAGIC_NUMBER.hex())'],
+        check=True,capture_output=True,text=True,timeout=30,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+    if environment.stdout.strip()!=importlib.util.MAGIC_NUMBER.hex():
+        raise ValueError('기존 가상환경의 Python 버전이 다릅니다. 원래 설치에 사용한 Python으로 실행해 주세요. 기록 폴더는 유지합니다.')
     if not old:
         subprocess.run([str(python),'-m','pip','install','--disable-pip-version-check','-r',str(directory/'requirements.txt')],check=True,timeout=300)
     manage(state,old or directory,'package_state','activate','--candidate='+str(directory))
@@ -169,11 +180,12 @@ def install(state,archive,digest,tag):
 
 
 def run(root,action,settings='config.settings',no_browser=False):
-    if sys.platform!='win32' or sys.version_info[:2]!=(3,13) or struct.calcsize('P')!=8:
-        raise ValueError('현재 실행 패키지는 Windows Python 3.13 64비트용입니다.')
+    check_python()
     state=root/'.coderoute'
     with lock(state):
         old=current(state)
+        if old and json.loads((old/'package.json').read_text(encoding='utf-8')).get('python_magic')!=importlib.util.MAGIC_NUMBER.hex():
+            raise ValueError('기존 설치와 Python 버전이 다릅니다. start.cmd 또는 이 설치의 .coderoute/home/.venv/Scripts/python.exe로 실행해 주세요.')
         journal=state/'home/artifacts/runtime/package-journal.json'
         if journal.exists():
             if not old:raise ValueError('첫 설치 복구 기록을 수동 확인해 주세요.')

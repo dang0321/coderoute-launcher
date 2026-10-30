@@ -10,7 +10,7 @@ Python·Java·C++·C로 기초부터 심화까지 학습할 수 있습니다. �
 
 | 항목 | 내용 |
 |---|---|
-| 현재 배포 | v0.1.1 · Windows 로컬 베타 |
+| 현재 배포 | v0.1.2 · Windows 로컬 베타 |
 | 지원 언어 | Python · Java · C++ · C |
 | 학습 콘텐츠 | 265문제 · 53개 학습 과정 · 모든 문제의 3단계 힌트와 풀이 해설 |
 | 이용 방식 | 실행기로 준비한 뒤 내 PC의 웹 브라우저에서 이용 |
@@ -38,7 +38,7 @@ Python·Java·C++·C로 기초부터 심화까지 학습할 수 있습니다. �
 | 준비할 것 | 조건과 공식 안내 |
 |---|---|
 | Windows PC | 현재 실행 패키지는 Windows x64용입니다. Docker Desktop의 Windows 요구 사항도 충족해야 합니다. |
-| Python | **Python 3.13 64비트**와 `py -3.13` 실행이 필요합니다. [Windows용 Python 다운로드](https://www.python.org/downloads/windows/)에서 3.13 계열을 선택하세요. |
+| Python | **CPython 3.11·3.12·3.13 중 하나의 64비트 버전**이 필요합니다. [Windows용 Python 다운로드](https://www.python.org/downloads/windows/)에서 준비할 수 있습니다. 기존에 지원 버전이 있으면 3.13을 추가로 설치할 필요가 없습니다. |
 | Docker Desktop | **Linux 컨테이너 엔진**을 실행해 주세요. [Windows 설치 안내](https://docs.docker.com/desktop/setup/install/windows-install/)를 참고하세요. |
 | 인터넷 | 최초 설치와 실행 패키지·의존성·채점 이미지 다운로드, 업데이트 확인에 필요합니다. |
 | 브라우저 | 로컬 웹 화면에 접속할 브라우저가 필요합니다. |
@@ -46,10 +46,12 @@ Python·Java·C++·C로 기초부터 심화까지 학습할 수 있습니다. �
 PowerShell 또는 명령 프롬프트에서 아래 명령으로 Python 준비 상태를 확인할 수 있습니다.
 
 ```powershell
-py -3.13 --version
+python --version
 ```
 
-현재 패키지는 Python 3.13용이므로 다른 버전만 설치된 상태에서는 실행되지 않습니다. Java·C++·C의 실행 도구는 채점 이미지 안에서 준비하므로 PC에 각각 설치할 필요가 없습니다.
+일반 Python인 **CPython 3.11·3.12·3.13 64비트**를 지원합니다. Windows Python Launcher(`py`)가 있으면 지원 버전을 자동으로 찾고, 없으면 PATH의 `python`을 확인합니다. 새 설치에서는 3.13 → 3.12 → 3.11 순서로 선택하며, 기존 설치는 코드루트 전용 가상환경의 Python을 우선 사용합니다.
+
+**PyPy만 있는 환경은 현재 실행용으로 지원하지 않습니다.** PyPy는 CPython과 별도 구현체이며 CPython용 바이트코드 배포본을 그대로 실행할 수 없습니다. Java·C++·C의 실행 도구는 채점 이미지 안에서 준비하므로 PC에 각각 설치할 필요가 없습니다. 이용자 PC의 Python 버전과 제출 코드를 실행하는 Docker 채점 환경은 별개입니다.
 
 Python·Docker 설치와 PC에 필요한 WSL·가상화 설정, 관리자 확인, 재부팅은 직접 진행해야 합니다. 실행기는 그 이후 코드루트의 가상환경·Python 패키지·학습 DB·채점 이미지를 준비합니다. 외부 프로그램의 이용 조건은 각 공식 안내를 확인해 주세요.
 
@@ -122,13 +124,15 @@ Java는 Java 21 기준으로 `package` 선언 없이 `public class Main`을 작�
 - 서비스가 실행 중이면 적용을 미루고 정상 종료 후 다음 시작에서 다시 확인합니다. 다운로드 실패 시 이미 설치된 버전과 기록은 유지합니다.
 - **실행기 자체·Python 의존성·채점 이미지 변경**은 현재 자동 교체 범위에 포함되지 않으며 별도 업그레이드 안내가 필요합니다.
 
+**v0.1.0·v0.1.1에서 호환 실행기로 옮기는 경우:** 종료 후 `git pull`로 실행기 파일을 갱신하거나, 이 저장소의 ZIP을 새로 받아 루트 파일을 기존 설치 폴더에 덮어씁니다. `.coderoute` 폴더는 삭제하거나 옮기지 마세요. 이번에는 `launcher.py`·`start.cmd`·`stop.cmd` 자체가 바뀌므로 이 작업이 한 번 필요합니다. 이후 호환 실행 패키지는 선택한 Python에 맞춰 기존 자동 업데이트 경로로 받습니다. 기존 설치의 Python 계열을 강제로 바꾸거나 가상환경을 삭제하지 마세요.
+
 중요한 풀이는 업데이트와 별개로 개인 기록 파일을 내보내 보관해 주세요.
 
 ## 실행이 잘되지 않을 때
 
 | 증상 | 먼저 확인할 내용 |
 |---|---|
-| Python 안내가 나오고 종료됨 | Python 3.13 64비트가 설치됐는지, `py -3.13 --version`이 동작하는지 확인합니다. |
+| Python 안내가 나오고 종료됨 | CPython 3.11·3.12·3.13 중 하나의 64비트 버전이 있는지 확인합니다. `py` 또는 PATH의 `python`으로 실행할 수 있어야 합니다. PyPy 전용 환경은 지원하지 않습니다. |
 | Docker·채점 준비에 실패함 | Docker Desktop이 실행 중인지, Linux 엔진과 필요한 WSL·가상화 설정이 준비됐는지 확인합니다. |
 | 최초 준비가 오래 걸림 | 설치 창의 진행·오류 문구를 확인합니다. 처음에는 의존성과 네 언어 채점 이미지를 준비합니다. |
 | 브라우저가 열리지 않음 | 실행 완료 여부를 확인한 뒤 `http://127.0.0.1:8000/`에 직접 접속합니다. 준비 실패 메시지가 있다면 먼저 그 원인을 해결합니다. |
@@ -138,7 +142,7 @@ Java는 Java 21 기준으로 `package` 선언 없이 `public class Main`을 작�
 현재 상태는 실행기 폴더에서 아래 명령으로 확인할 수 있습니다.
 
 ```powershell
-py -3.13 launcher.py status
+.\.coderoute\home\.venv\Scripts\python.exe .\launcher.py status
 ```
 
 해결되지 않으면 [Issues](https://github.com/dang0321/coderoute-launcher/issues)에 사용 버전, Windows·Python·Docker 환경, 재현 순서와 오류 문구를 적어 주세요. **DB·개인 기록 파일·인증 JSON·토큰·비밀번호·SMTP 설정은 올리지 말고**, 로그와 화면의 개인정보도 가려 주세요.

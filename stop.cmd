@@ -1,12 +1,27 @@
 @echo off
 cd /d "%~dp0"
-where py >nul 2>&1
-if errorlevel 1 (
-  echo Windows Python Launcher is required. Existing records were not changed.
-  pause
-  exit /b 1
+if exist "%~dp0.coderoute\home\.venv\Scripts\python.exe" (
+  "%~dp0.coderoute\home\.venv\Scripts\python.exe" "%~dp0launcher.py" stop
+  goto complete
 )
-py -3.13 "%~dp0launcher.py" stop
+for %%V in (3.13 3.12 3.11) do (
+  py -%%V -c "import sys,struct; sys.exit(0 if sys.implementation.name=='cpython' and struct.calcsize('P')==8 else 1)" >nul 2>&1
+  if not errorlevel 1 (
+    set "coderoutePythonVersion=%%V"
+    goto useLauncher
+  )
+)
+python -c "import sys,struct; sys.exit(0 if sys.implementation.name=='cpython' and sys.version_info[:2] in ((3,11),(3,12),(3,13)) and struct.calcsize('P')==8 else 1)" >nul 2>&1
+if not errorlevel 1 (
+  python "%~dp0launcher.py" stop
+  goto complete
+)
+echo Windows CPython 3.11, 3.12 or 3.13 64-bit is required. Existing records were not changed.
+pause
+exit /b 1
+:useLauncher
+py -%coderoutePythonVersion% "%~dp0launcher.py" stop
+:complete
 set "taskExit=%errorlevel%"
 pause
 exit /b %taskExit%
